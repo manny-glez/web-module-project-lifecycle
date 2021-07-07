@@ -4,41 +4,50 @@ import './App.css';
 
 import UserCard from "./components/UserCard";
 
-const users = [
+const usersArray = [
+  'manny-glez',
   'Bobby-Tav',
   'fervelgo',
   'caralocke',
   'dhef415',
   'Rodgers31',
-  'Spencerp34',
+  'Spencerp34'
 ]
 
 class App extends React.Component {
   state = {
-    usersImage: [],
-    name: [],
-    username: [],
-    location: [],
-    profile: []
+    users: []
   }
 
-  componentDidMount() {
-    console.log("App mounted")
-    axios.get('https://api.github.com/users/manny-glez')
+  fetchUser(userID) {
+    axios
+      .get(`https://api.github.com/users/${userID}`)
       .then(res => {
-        console.log(res.data)
-        this.setState({
-          ...this.state,
-          usersImage: res.data.avatar_url,
+
+        const newUser = {
+          userImage: res.data.avatar_url,
           name: res.data.name,
           username: res.data.login,
           location: res.data.location,
           profile: res.data.html_url
+        }
+
+        this.setState({
+          ...this.state,
+          users: this.state.users.concat(newUser)
         })
       })
       .catch(err => {
         console.log(err);
       });
+  }
+
+  componentDidMount() {
+    console.log("App mounted")
+
+    usersArray.map(userID => {
+      return this.fetchUser(userID)
+    })
   }
 
   componentDidUpdate() {
@@ -51,12 +60,21 @@ class App extends React.Component {
       <div className="App">
         <h1>GitHub Users</h1>
 
-        <UserCard image={this.state.usersImage}
-          name={this.state.name}
-          username={this.state.username}
-          location={this.state.location}
-          profile={this.state.profile}
-        />
+        {
+          this.state.users.map(user => {
+            return(
+              <UserCard
+                key={user.username}
+                image={user.userImage}
+                name={user.name}
+                username={user.username}
+                location={user.location}
+                profile={user.profile}
+              />
+            )
+          })
+        }
+    
       </div>
     )
   }
