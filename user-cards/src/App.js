@@ -3,47 +3,58 @@ import axios from 'axios';
 import './App.css';
 import Card from "./components/Card";
 
+const usernames = [
+  "manny-glez",
+  "Spencerp34",
+  "Bobby-Tav",
+  "fervelgo"
+]
+
 class App extends React.Component {
+
   state = {
-    avatar_url:[],
-    name: [],
-    username: [],
-    location: [],
-    bio: [],
-    followers: []
+    users: []
   }
 
   componentDidMount() {
-    axios.get(`https://api.github.com/users/manny-glez`)
-      .then(res => {
-        // console.log(res)
-        this.setState({
-          ...this.state,
-          avatar_url: res.data.avatar_url,
-          name: res.data.name,
-          username: res.data.login,
-          location: res.data.location,
-          bio: res.data.bio,
-          followers: res.data.followers
+    usernames.forEach(username => {
+      axios
+        .get(`https://api.github.com/users/${username}`)
+        .then(res => {
+
+          this.setState({
+            ...this.state,
+            users: [...this.state.users, {avatar_url: res.data.avatar_url,
+              name: res.data.name,
+              username: res.data.login,
+              location: res.data.location,
+              bio: res.data.bio,
+              followers: res.data.followers,
+              link: res.data.html_url}]
+          })
         })
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    })
   }
 
   render() {
     return (
       <div className="App">
         <h1>GitHub User Cards</h1>
-        <Card 
-          avatar_url={this.state.avatar_url}
-          name={this.state.name}
-          username={this.state.username}
-          location={this.state.location}
-          bio={this.state.bio}
-          followers={this.state.followers}
-        />
+        {
+          this.state.users.map(user => {
+            return (
+              <Card
+                username={user.username}
+                location={user.location}
+                bio={user.bio}
+                followers={user.followers}
+                name={user.name}
+                avatar_url={user.avatar_url}
+                link={user.link}
+            />
+            )
+          })
+        }
       </div>
     );
   }
